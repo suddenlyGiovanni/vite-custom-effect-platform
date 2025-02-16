@@ -3,7 +3,7 @@
 	"scripts": {
 		"build": "react-router build",
 		"dev": "react-router dev",
-		"typecheck": "react-router typegen && tsc"
+		"typecheck": "react-router typegen && tsc --watch"
 	},
 	"dependencies": {
 		"@react-router/node": "^7.1.5",

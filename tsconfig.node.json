@@ -1,11 +1,14 @@
+
 {
 	"extends": [
 		"@tsconfig/strictest/tsconfig.json",
 		"@tsconfig/node23/tsconfig.json"
 	],
-	"include": ["**/*.ts"],
+	"include": ["server/*.ts"],
 	"compilerOptions": {
-		"skipLibCheck": true,
+	  "composite": true,
+	  "types": ["node"],
+	  "skipLibCheck": true,
 		"noUncheckedSideEffectImports": true,
 		"allowImportingTsExtensions": true,
 
