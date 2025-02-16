@@ -6,9 +6,11 @@
 		"typecheck": "react-router typegen && tsc --watch"
 	},
 	"dependencies": {
+		"@effect/platform": "^0.77.1",
 		"@react-router/node": "^7.1.5",
 		"@tsconfig/node23": "^23.0.0",
 		"@tsconfig/strictest": "^2.0.5",
+		"effect": "^3.13.1",
 		"isbot": "^5.1.22",
 		"react": "^19.0.0",
 		"react-dom": "^19.0.0",
