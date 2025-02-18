@@ -1,18 +1,11 @@
 {
-	"extends": ["./tsconfig.json", "@tsconfig/node23/tsconfig.json"],
-	"include": ["server/**/*.ts", "vite.config.ts"],
+	"extends": ["@tsconfig/node23/tsconfig.json", "./tsconfig.json"],
+	"include": ["server/**/*.ts", "types/**/*", "vite.config.ts"],
 	"compilerOptions": {
 		"composite": true,
 		"types": ["node"],
-		"skipLibCheck": true,
-		"noUncheckedSideEffectImports": true,
-		"allowImportingTsExtensions": true,
 		"verbatimModuleSyntax": true,
 		"erasableSyntaxOnly": true,
-		"isolatedModule": true,
-		"resolveJsonModule": true,
-		"noEmit": true,
-		"moduleDetection": "auto",
-		"moduleResolution": "bundler"
+		"resolveJsonModule": true
 	}
 }

@@ -4,8 +4,8 @@ import morgan from 'morgan'
 
 // Short-circuit the type-checking of the built output.
 const BUILD_PATH = './build/server/index.js'
-const DEVELOPMENT = process.env.NODE_ENV === 'development'
-const PORT = Number.parseInt(process.env.PORT || '3000')
+const DEVELOPMENT = process.env['NODE_ENV'] === 'development'
+const PORT = Number.parseInt(process.env['PORT'] || '3000')
 
 const app = express()
 
@@ -23,7 +23,7 @@ if (DEVELOPMENT) {
 	app.use(async (req, res, next) => {
 		try {
 			const source = await viteDevServer.ssrLoadModule('./server/app.ts')
-			return await source.app(req, res, next)
+			return await source['app'](req, res, next)
 		} catch (error) {
 			if (typeof error === 'object' && error instanceof Error) {
 				viteDevServer.ssrFixStacktrace(error)

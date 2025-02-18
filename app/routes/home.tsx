@@ -1,5 +1,5 @@
-import type { Route } from './+types/home'
-import { Welcome } from '../welcome/welcome'
+import { Welcome } from '../welcome/welcome.tsx'
+import type { Route } from './+types/home.ts'
 
 export function meta({}: Route.MetaArgs) {
 	return [
@@ -9,7 +9,7 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export function loader({ context }: Route.LoaderArgs) {
-	return { message: context.VALUE_FROM_EXPRESS }
+	return { message: context['VALUE_FROM_EXPRESS'] }
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
