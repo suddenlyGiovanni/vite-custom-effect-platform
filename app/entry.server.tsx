@@ -1,4 +1,5 @@
 import { PassThrough } from 'node:stream'
+
 import { isbot } from 'isbot'
 import type { RenderToPipeableStreamOptions } from 'react-dom/server'
 import { renderToPipeableStream } from 'react-dom/server'
@@ -16,7 +17,7 @@ export default function handleRequest(
 	routerContext: EntryContext,
 	_loadContext: AppLoadContext,
 ) {
-	return new Promise((resolve, reject) => {
+	return new Promise<Response>((resolve, reject) => {
 		let shellRendered = false
 		const userAgent = request.headers.get('user-agent')
 
