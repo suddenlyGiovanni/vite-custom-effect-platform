@@ -6,7 +6,7 @@
 		"app/**/*",
 		"app/**/.server/**/*",
 		"app/**/.client/**/*",
-		"server/**/*"
+		"types/**/*"
 	],
 	"extends": ["./tsconfig.json"],
 	"compilerOptions": {
