@@ -2,8 +2,9 @@ import compression from 'compression'
 import express from 'express'
 import morgan from 'morgan'
 
-// Short-circuit the type-checking of the built output.
-const BUILD_PATH = '../build/server/index.js' as const
+import expressServerDevelopment from './express-server-development.ts'
+import expressServerProduction from './express-server-production.ts'
+
 const DEVELOPMENT = process.env['NODE_ENV'] === 'development'
 const PORT = Number.parseInt(process.env['PORT'] || '3000')
 
@@ -13,32 +14,9 @@ app.use(compression())
 app.disable('x-powered-by')
 
 if (DEVELOPMENT) {
-	console.log('Starting development server')
-	const viteDevServer = await import('vite').then((vite) =>
-		vite.createServer({
-			server: { middlewareMode: true },
-		}),
-	)
-	app.use(viteDevServer.middlewares)
-	app.use(async (req, res, next) => {
-		try {
-			const source = await viteDevServer.ssrLoadModule('./server/app.ts')
-			return await source['app'](req, res, next)
-		} catch (error) {
-			if (typeof error === 'object' && error instanceof Error) {
-				viteDevServer.ssrFixStacktrace(error)
-			}
-			next(error)
-		}
-	})
+	await expressServerDevelopment(app)
 } else {
-	console.log('Starting production server')
-	app.use(
-		'/assets',
-		express.static('build/client/assets', { immutable: true, maxAge: '1y' }),
-	)
-	app.use(express.static('build/client', { maxAge: '1h' }))
-	app.use(await import(BUILD_PATH).then((mod) => mod.default))
+	await expressServerProduction(app)
 }
 
 app.use(morgan('tiny'))

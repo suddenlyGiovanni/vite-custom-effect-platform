@@ -16,7 +16,7 @@ export default function handleRequest(
 	responseHeaders: Headers,
 	routerContext: EntryContext,
 	_loadContext: AppLoadContext,
-) {
+): Promise<Response> {
 	return new Promise<Response>((resolve, reject) => {
 		let shellRendered = false
 		const userAgent = request.headers.get('user-agent')
