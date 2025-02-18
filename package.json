@@ -3,8 +3,8 @@
 	"type": "module",
 	"scripts": {
 		"build": "react-router build",
-		"dev": "NODE_ENV=development node ./server/server.ts",
-		"start": "node ./server/server.ts",
+		"dev": "NODE_ENV=development node server/express-server.ts",
+		"start": "node server/express-server.ts",
 		"typecheck": "react-router typegen && tsc -b"
 	},
 	"dependencies": {
