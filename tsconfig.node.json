@@ -3,6 +3,7 @@
 	"include": ["server/**/*.ts", "types/**/*", "vite.config.ts"],
 	"compilerOptions": {
 		"composite": true,
+		"lib": ["DOM"],
 		"types": ["node"],
 		"verbatimModuleSyntax": true,
 		"erasableSyntaxOnly": true,
