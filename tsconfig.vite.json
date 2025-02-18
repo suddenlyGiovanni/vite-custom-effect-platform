@@ -1,6 +1,14 @@
 {
-	"include": ["client/**/*", ".react-router/types/**/*"],
-	"extends": ["@tsconfig/strictest/tsconfig.json"],
+	"include": [
+		".react-router/types/**/*",
+		"vite.config.ts",
+		"react-router.config.ts",
+		"app/**/*",
+		"app/**/.server/**/*",
+		"app/**/.client/**/*",
+		"server/**/*"
+	],
+	"extends": ["./tsconfig.json"],
 	"compilerOptions": {
 		"composite": true,
 		"lib": ["DOM", "DOM.Iterable", "ES2022"],

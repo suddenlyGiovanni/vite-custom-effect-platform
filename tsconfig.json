@@ -1,4 +1,5 @@
 {
+	"extends": "@tsconfig/strictest/tsconfig.json",
 	"references": [
 		{
 			"path": "./tsconfig.node.json"
@@ -7,5 +8,12 @@
 			"path": "./tsconfig.vite.json"
 		}
 	],
-	"files": []
+	"files": [],
+	"compilerOptions": {
+		"checkJs": true,
+		"verbatimModuleSyntax": true,
+		"skipLibCheck": true,
+		"strict": true,
+		"noEmit": true
+	}
 }

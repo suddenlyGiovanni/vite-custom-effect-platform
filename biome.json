@@ -7,7 +7,16 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"ignore": []
+		"ignore": [],
+		"include": [
+			"app/**",
+			"server/**",
+			".react-router/**",
+			"react-router",
+			"package.json",
+			"tsconfig*",
+			"biome.json"
+		]
 	},
 	"formatter": {
 		"enabled": true,
@@ -19,7 +28,10 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true
+			"recommended": true,
+			"complexity": {
+				"useLiteralKeys": "off"
+			}
 		}
 	},
 	"javascript": {

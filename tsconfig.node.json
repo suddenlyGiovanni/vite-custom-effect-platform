@@ -1,28 +1,18 @@
-
 {
-	"extends": [
-		"@tsconfig/strictest/tsconfig.json",
-		"@tsconfig/node23/tsconfig.json"
-	],
-	"include": ["server/*.ts"],
+	"extends": ["./tsconfig.json", "@tsconfig/node23/tsconfig.json"],
+	"include": ["server/**/*.ts", "vite.config.ts"],
 	"compilerOptions": {
-	  "composite": true,
-	  "types": ["node"],
-	  "skipLibCheck": true,
+		"composite": true,
+		"types": ["node"],
+		"skipLibCheck": true,
 		"noUncheckedSideEffectImports": true,
 		"allowImportingTsExtensions": true,
-
-		//========== Compiling TS with tools other than tsc ==========
-		// Enforces keyword `type` for type imports etc.
-		"verbatimModuleSyntax": true, // implies "isolatedModules"
-		// - Forbids non-JavaScript language constructs such as JSX,
-		//   enums, constructor parameter properties and namespaces
-		// - Important for type stripping
-		"erasableSyntaxOnly": true, // TS 5.8+: type stripping
+		"verbatimModuleSyntax": true,
+		"erasableSyntaxOnly": true,
 		"isolatedModule": true,
-
 		"resolveJsonModule": true,
 		"noEmit": true,
-		"moduleDetection": "auto"
+		"moduleDetection": "auto",
+		"moduleResolution": "bundler"
 	}
 }
