@@ -1,15 +1,11 @@
 import express from 'express'
-import type { createExpressRequestHandlerAdapter } from './app.ts'
 
-/**
- * Short-circuit the type-checking of the built output.
- */
-const reactRouterRequestHandler: ReturnType<
-	typeof createExpressRequestHandlerAdapter
-> = await import('../../build/server/index.js' as const).then(
-	({ createExpressRequestHandlerAdapter }) =>
-		createExpressRequestHandlerAdapter(),
-)
+const reactRouterRequestHandler = await import(
+	/**
+	 * Short-circuit the type-checking of the built output.
+	 */
+	'../../build/server/index.js' as const
+).then((mod: typeof import('./app.ts')) => mod.reactRouterRequestHandler)
 
 export async function productionApp(
 	app: express.Express,

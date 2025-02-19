@@ -7,20 +7,19 @@ import { productionApp } from './production-app.ts'
 
 const PORT = Number.parseInt(process.env['PORT'] || '3000')
 
+const isDevelopment = process.env['NODE_ENV'] === 'development'
+
 pipe(
 	express()
 		.use(compression())
-		.disable('x-powered-by'), //
+		.disable('x-powered-by')
+		.use(morgan(isDevelopment ? 'dev' : 'tiny')), //
 	async (app) =>
-		process.env['NODE_ENV'] === 'development'
-			? await developmentApp(app) //
-			: await productionApp(app),
+		isDevelopment ? await developmentApp(app) : await productionApp(app),
 	(promise) =>
 		promise.then((app) =>
-			app
-				.use(morgan('dev')) //
-				.listen(PORT, () => {
-					console.log(`Server is running on http://localhost:${PORT}`)
-				}),
+			app.listen(PORT, () =>
+				console.log(`Server is running on http://localhost:${PORT}`),
+			),
 		),
 )

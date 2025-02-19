@@ -8,9 +8,7 @@ const expressRequestHandler = await (
 	viteDevServer.ssrLoadModule('./server/express/app.ts') as Promise<
 		typeof import('./app.ts')
 	>
-).then(({ createExpressRequestHandlerAdapter }) =>
-	createExpressRequestHandlerAdapter(),
-)
+).then(({ reactRouterRequestHandler }) => reactRouterRequestHandler)
 
 const reactRouterRequestHandler: typeof expressRequestHandler = async (
 	req,
