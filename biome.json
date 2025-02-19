@@ -13,8 +13,9 @@
 			"server/**",
 			".react-router/**",
 			"react-router",
+			"vite.config.ts",
 			"package.json",
-			"tsconfig*",
+			"tsconfig.*.json",
 			"biome.json"
 		]
 	},
