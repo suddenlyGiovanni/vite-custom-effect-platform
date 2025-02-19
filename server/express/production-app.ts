@@ -1,9 +1,15 @@
 import express from 'express'
+import type { createExpressRequestHandlerAdapter } from './app.ts'
 
 /**
  * Short-circuit the type-checking of the built output.
  */
-const BUILD_PATH = '../../build/server/index.js' as const
+const reactRouterRequestHandler: ReturnType<
+	typeof createExpressRequestHandlerAdapter
+> = await import('../../build/server/index.js' as const).then(
+	({ createExpressRequestHandlerAdapter }) =>
+		createExpressRequestHandlerAdapter(),
+)
 
 export async function productionApp(
 	app: express.Express,
@@ -16,5 +22,5 @@ export async function productionApp(
 			express.static('build/client/assets', { immutable: true, maxAge: '1y' }),
 		)
 		.use(express.static('build/client', { maxAge: '1h' }))
-		.use(await import(BUILD_PATH).then((mod) => mod.default))
+		.use(reactRouterRequestHandler)
 }
