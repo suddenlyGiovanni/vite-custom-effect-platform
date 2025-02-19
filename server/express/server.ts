@@ -2,8 +2,8 @@ import compression from 'compression'
 import express from 'express'
 import morgan from 'morgan'
 
-import expressServerDevelopment from './express-server-development.ts'
-import expressServerProduction from './express-server-production.ts'
+import { developmentApp } from './development-app.ts'
+import { productionApp } from './production-app.ts'
 
 const DEVELOPMENT = process.env['NODE_ENV'] === 'development'
 const PORT = Number.parseInt(process.env['PORT'] || '3000')
@@ -14,9 +14,9 @@ app.use(compression())
 app.disable('x-powered-by')
 
 if (DEVELOPMENT) {
-	await expressServerDevelopment(app)
+	await developmentApp(app)
 } else {
-	await expressServerProduction(app)
+	await productionApp(app)
 }
 
 app.use(morgan('tiny'))

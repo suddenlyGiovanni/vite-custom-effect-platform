@@ -1,6 +1,6 @@
 import type express from 'express'
 
-export default async function develop(
+export async function developmentApp(
 	app: express.Express,
 ): Promise<express.Express> {
 	console.log('Starting development server')
@@ -15,7 +15,9 @@ export default async function develop(
 
 	app.use(async (req, res, next) => {
 		try {
-			const source = await viteDevServer.ssrLoadModule('./server/app.ts')
+			const source = await viteDevServer.ssrLoadModule(
+				'./server/express/app.ts',
+			)
 			return await source['app'](req, res, next)
 		} catch (error) {
 			if (typeof error === 'object' && error instanceof Error) {

@@ -1,5 +1,5 @@
 import express from 'express'
-import { createRequestHandler } from './adapters/express.ts'
+import { createRequestHandler } from '../adapters/express.ts'
 
 const app = express()
 
