@@ -1,7 +1,7 @@
 import express from 'express'
 import { createRequestHandler } from './adapters/express.ts'
 
-export const app = express()
+const app = express()
 
 app.use(
 	createRequestHandler({
@@ -14,3 +14,5 @@ app.use(
 		},
 	}),
 )
+
+export default app

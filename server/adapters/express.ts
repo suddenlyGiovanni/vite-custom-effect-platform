@@ -1,6 +1,8 @@
-import * as ReactRouterNode from '@react-router/node'
 import type * as express from 'express'
+import type { AppLoadContext } from 'react-router'
 import * as ReactRouter from 'react-router'
+
+import * as ReactRouterNode from '../react-router-node/index.ts'
 
 /**
  * A function that returns the value to use as `context` in route `loader` and
@@ -47,10 +49,13 @@ export function createRequestHandler({
 		next: express.NextFunction,
 	): Promise<void> => {
 		try {
-			const request = createRemixRequest(req, res)
-			const loadContext = await getLoadContext?.(req, res)
+			const request: Request = createRemixRequest(req, res)
+			const loadContext: AppLoadContext | undefined = await getLoadContext?.(
+				req,
+				res,
+			)
 
-			const response = await handleRequest(request, loadContext)
+			const response: Response = await handleRequest(request, loadContext)
 
 			await sendRemixResponse(res, response)
 		} catch (error: unknown) {

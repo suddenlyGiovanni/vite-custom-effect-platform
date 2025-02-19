@@ -6,7 +6,8 @@
 		"app/**/*",
 		"app/**/.server/**/*",
 		"app/**/.client/**/*",
-		"types/**/*"
+		"types/**/*",
+		"server/react-router-node"
 	],
 	"extends": ["./tsconfig.json"],
 	"compilerOptions": {

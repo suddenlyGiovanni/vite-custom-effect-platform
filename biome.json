@@ -6,8 +6,8 @@
 		"useIgnoreFile": false
 	},
 	"files": {
-		"ignoreUnknown": false,
-		"ignore": [],
+		"ignoreUnknown": true,
+		"ignore": [".direnv/", ".idea/", "node_modules", "build"],
 		"include": [
 			"app/**",
 			"server/**",
