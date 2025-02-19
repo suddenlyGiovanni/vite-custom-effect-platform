@@ -6,31 +6,27 @@ export async function developmentApp(
 	console.log('Starting development server')
 
 	const viteDevServer = await import('vite').then((vite) =>
-		vite.createServer({
-			server: { middlewareMode: true },
-		}),
-	)
-
-	app.use(viteDevServer.middlewares)
-
-	app.use(async (req, res, next) =>
-		(
-			viteDevServer.ssrLoadModule('./server/express/app.ts') as Promise<
-				typeof import('./app.ts')
-			>
-		)
-			.then((mod) => mod.default)
-			.then(
-				async (reactRouterMiddleware) =>
-					await reactRouterMiddleware(req, res, next),
-			)
-			.catch((error) => {
-				if (typeof error === 'object' && error instanceof Error) {
-					viteDevServer.ssrFixStacktrace(error)
-				}
-				next(error)
-			}),
+		vite.createServer({ server: { middlewareMode: true } }),
 	)
 
 	return app
+		.use(viteDevServer.middlewares) //
+		.use(async (req, res, next) =>
+			(
+				viteDevServer.ssrLoadModule('./server/express/app.ts') as Promise<
+					typeof import('./app.ts')
+				>
+			)
+				.then((mod) => mod.default)
+				.then(
+					async (reactRouterMiddleware) =>
+						await reactRouterMiddleware(req, res, next),
+				)
+				.catch((error) => {
+					if (typeof error === 'object' && error instanceof Error) {
+						viteDevServer.ssrFixStacktrace(error)
+					}
+					next(error)
+				}),
+		)
 }
