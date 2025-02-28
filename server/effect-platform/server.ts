@@ -1,7 +1,7 @@
-import { createServer } from 'node:http'
 import {
 	HttpMiddleware,
 	HttpRouter,
+	Headers,
 	HttpServer,
 	HttpServerRequest,
 	HttpServerResponse,
@@ -11,7 +11,15 @@ import {
 	NodeHttpServerRequest,
 	NodeRuntime,
 } from '@effect/platform-node'
-import { Data, Effect, Layer, pipe } from 'effect'
+
+import { Data, Effect, Layer, Stream, pipe } from 'effect'
+import {
+	createServer,
+	type IncomingMessage,
+	type ServerResponse,
+} from 'node:http'
+import * as ReactRouter from 'react-router'
+import { createRemixRequest } from './create-remix-request.ts'
 
 // Middleware constructor that logs the name of the middleware
 const withMiddleware = (name: string) =>
@@ -30,10 +38,44 @@ const withMiddleware = (name: string) =>
 const router = HttpRouter.empty.pipe(
 	HttpRouter.all(
 		'*',
-		Effect.map(
-			HttpServerRequest.HttpServerRequest, //
-			(req) => HttpServerResponse.text(req.url),
-		).pipe(
+		Effect.gen(function* () {
+			const httpServerRequest = yield* HttpServerRequest.HttpServerRequest
+			const incomingMessage =
+				NodeHttpServerRequest.toIncomingMessage(httpServerRequest)
+			const serverResponse: ServerResponse<IncomingMessage> =
+				NodeHttpServerRequest.toServerResponse(httpServerRequest)
+			// (request: Request, loadContext?: AppLoadContext$1) => Promise<Response>;
+			const handleRequest = ReactRouter.createRequestHandler(
+				// @ts-expect-error
+				() => import('virtual:react-router/server-build'),
+				process.env['NODE_ENV'],
+			)
+			const request = createRemixRequest(incomingMessage, serverResponse)
+
+			const response = yield* Effect.promise(() => handleRequest(request))
+
+			if (response.headers.get('Content-Type')?.match(/text\/event-stream/i)) {
+				// res.flushHeaders()
+				serverResponse.flushHeaders()
+			}
+
+			const options: HttpServerResponse.Options = {
+				status: response.status,
+				statusText: response.statusText,
+				headers: Headers.fromInput(response.headers),
+			}
+
+			if (response.body) {
+				// need to convert the response.body, which is a ReadableStream<Uint8Array>, into a Stream.Stream<Uint8Array, E, never>
+				Stream.fromReadableStream(() => response.body)
+				return yield* HttpServerResponse.stream(
+					Stream.fromReadableStream(() => response.body),
+					options,
+				)
+			}
+
+			return yield* HttpServerResponse.empty(options)
+		}).pipe(
 			HttpMiddleware.make((app) => {
 				return Effect.gen(function* () {
 					const viteDevServer = yield* Effect.promise(() =>
