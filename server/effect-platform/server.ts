@@ -1,4 +1,10 @@
 import {
+	createServer,
+	type IncomingMessage,
+	type ServerResponse,
+} from 'node:http'
+
+import {
 	HttpMiddleware,
 	HttpRouter,
 	Headers,
@@ -11,28 +17,10 @@ import {
 	NodeHttpServerRequest,
 	NodeRuntime,
 } from '@effect/platform-node'
-
 import { Data, Effect, Layer, Stream, pipe } from 'effect'
-import {
-	createServer,
-	type IncomingMessage,
-	type ServerResponse,
-} from 'node:http'
 import * as ReactRouter from 'react-router'
+
 import { createRemixRequest } from './create-remix-request.ts'
-
-// Middleware constructor that logs the name of the middleware
-const withMiddleware = (name: string) =>
-	HttpMiddleware.make((app) =>
-		Effect.gen(function* () {
-			console.log(name) // Log the middleware name when the route is accessed
-			return yield* app // Continue with the original application flow
-		}),
-	)
-
-// const viteDevServer = await import('vite').then((vite) =>
-// 	vite.createServer({ server: { middlewareMode: true } }),
-// )
 
 // Define the router with a single route for the root URL
 const router = HttpRouter.empty.pipe(
@@ -55,7 +43,6 @@ const router = HttpRouter.empty.pipe(
 			const response = yield* Effect.promise(() => handleRequest(request))
 
 			if (response.headers.get('Content-Type')?.match(/text\/event-stream/i)) {
-				// res.flushHeaders()
 				serverResponse.flushHeaders()
 			}
 
@@ -67,9 +54,13 @@ const router = HttpRouter.empty.pipe(
 
 			if (response.body) {
 				// need to convert the response.body, which is a ReadableStream<Uint8Array>, into a Stream.Stream<Uint8Array, E, never>
-				Stream.fromReadableStream(() => response.body)
 				return yield* HttpServerResponse.stream(
-					Stream.fromReadableStream(() => response.body),
+					Stream.fromReadableStream(
+						// biome-ignore lint/style/noNonNullAssertion: <explanation>
+						() => response.body!,
+						(error) =>
+							new Error(`Error reading response stream: ${String(error)}`),
+					),
 					options,
 				)
 			}
