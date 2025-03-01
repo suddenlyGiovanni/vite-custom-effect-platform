@@ -1,7 +1,7 @@
-import { createServer } from 'node:http'
 import { HttpMiddleware, HttpRouter, HttpServer } from '@effect/platform'
-import { NodeHttpServer, NodeRuntime } from '@effect/platform-node'
-import { Layer, flow, pipe } from 'effect'
+
+import { flow, pipe } from 'effect'
+import { listen } from './listen.ts'
 
 import { viteMiddleware } from './vite-middleware.ts'
 
@@ -29,11 +29,4 @@ const app = pipe(
 	HttpServer.withLogAddress,
 )
 
-// Specify the port
-const port = 3000
-
-// Create a server layer with the specified port
-const ServerLive = NodeHttpServer.layer(() => createServer(), { port })
-
-// Run the application
-NodeRuntime.runMain(Layer.launch(Layer.provide(app, ServerLive)))
+listen(app, 3000)
