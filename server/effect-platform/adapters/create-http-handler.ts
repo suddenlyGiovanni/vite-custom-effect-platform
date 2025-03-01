@@ -3,7 +3,7 @@ import { Headers, HttpServerResponse } from '@effect/platform'
 import { Effect, Stream } from 'effect'
 import * as ReactRouter from 'react-router'
 
-import { createRemixRequest } from './create-remix-request.ts'
+import { createReactRouterRequest } from './create-react-router-request.ts'
 
 type GetLoadContextFunction = (
 	req: IncomingMessage,
@@ -13,7 +13,7 @@ type GetLoadContextFunction = (
 export function createHttpHandler({
 	build,
 	getLoadContext,
-	mode = process.env['NODE_ENV'],
+	mode,
 }: {
 	build: ReactRouter.ServerBuild | (() => Promise<ReactRouter.ServerBuild>)
 	getLoadContext?: GetLoadContextFunction
@@ -26,7 +26,7 @@ export function createHttpHandler({
 		serverResponse: ServerResponse<IncomingMessage>,
 	) =>
 		Effect.gen(function* () {
-			const request: Request = createRemixRequest(
+			const request: Request = createReactRouterRequest(
 				incomingMessage,
 				serverResponse,
 			)

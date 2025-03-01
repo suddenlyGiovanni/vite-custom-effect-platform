@@ -40,7 +40,7 @@ function createRemixHeaders(incomingHeaders: IncomingHttpHeaders): Headers {
  * @param incomingMessage
  * @param serverResponse
  */
-export function createRemixRequest(
+export function createReactRouterRequest(
 	incomingMessage: IncomingMessage,
 	serverResponse: ServerResponse<IncomingMessage>,
 ): Request {
