@@ -5,7 +5,7 @@ import { listen } from './listen.ts'
 
 import { viteMiddleware } from './vite-middleware.ts'
 
-const viteDevServer = await import('vite').then((vite) =>
+export const viteDevServer = await import('vite').then((vite) =>
 	vite.createServer({ server: { middlewareMode: true } }),
 )
 

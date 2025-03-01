@@ -5,6 +5,7 @@ import {
 } from '@effect/platform'
 import { NodeHttpServerRequest } from '@effect/platform-node'
 import { Data, Effect } from 'effect'
+import { viteDevServer } from './server.ts'
 
 class MiddlewareError extends Data.TaggedError('MiddlewareError')<{
 	message: string
@@ -36,11 +37,6 @@ class MiddlewareError extends Data.TaggedError('MiddlewareError')<{
  */
 export const viteMiddleware = HttpMiddleware.make((app) =>
 	Effect.gen(function* () {
-		const viteDevServer = yield* Effect.promise(() =>
-			import('vite').then((vite) =>
-				vite.createServer({ server: { middlewareMode: true } }),
-			),
-		)
 		// we need to call the viteDevServer.middleware to hand off the request to Vite,
 		// there are some issues:
 		// 1. viteDevServer.middleware is expecting an connect/express request/response object
