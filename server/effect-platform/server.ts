@@ -12,7 +12,7 @@ import {
 } from '@effect/platform-node'
 import { Config, Effect, Layer, flow, pipe } from 'effect'
 
-import { createHttpHandler } from './create-http-handler.ts'
+import { createHttpHandler } from './adapters/create-http-handler.ts'
 import { viteMiddleware } from './vite-middleware.ts'
 
 // Define the router with a single route for the root URL

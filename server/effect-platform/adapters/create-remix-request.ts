@@ -1,9 +1,9 @@
 import type {
+	IncomingHttpHeaders,
 	IncomingMessage,
 	ServerResponse,
-	IncomingHttpHeaders,
 } from 'node:http'
-import * as ReactRouterNode from '../react-router-node/index.ts'
+import * as ReactRouterNode from '../../react-router-node/index.ts'
 
 /**
  * Converts incoming HTTP headers into a `Headers` object suitable for usage in a web environment.
