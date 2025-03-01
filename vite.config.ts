@@ -6,7 +6,7 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 export default defineConfig(({ isSsrBuild }) => ({
 	build: {
 		rollupOptions: isSsrBuild
-			? { input: './server/express/app.ts' }
+			? { input: './server/effect-platform/handler.ts' }
 			: undefined,
 		target: 'esnext',
 		externalImportAttributes: true,
