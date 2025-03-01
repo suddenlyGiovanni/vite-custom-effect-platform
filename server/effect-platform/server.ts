@@ -1,7 +1,7 @@
 import { createServer } from 'node:http'
 import { HttpMiddleware, HttpRouter, HttpServer } from '@effect/platform'
 import { NodeHttpServer, NodeRuntime } from '@effect/platform-node'
-import { Layer, pipe } from 'effect'
+import { Layer, flow, pipe } from 'effect'
 
 import { handler } from './handler.ts'
 import { viteMiddleware } from './vite-middleware.ts'
@@ -14,7 +14,9 @@ const router = HttpRouter.empty.pipe(
 // Set up the application server with logging
 const app = pipe(
 	router,
-	HttpServer.serve(HttpMiddleware.logger),
+	HttpServer.serve(
+		flow(HttpMiddleware.xForwardedHeaders, HttpMiddleware.logger),
+	),
 	HttpServer.withLogAddress,
 )
 
