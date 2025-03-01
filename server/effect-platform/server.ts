@@ -1,14 +1,40 @@
 import { createServer } from 'node:http'
-import { HttpMiddleware, HttpRouter, HttpServer } from '@effect/platform'
-import { NodeHttpServer, NodeRuntime } from '@effect/platform-node'
-import { Layer, flow, pipe } from 'effect'
+import {
+	HttpMiddleware,
+	HttpRouter,
+	HttpServer,
+	HttpServerRequest,
+} from '@effect/platform'
+import {
+	NodeHttpServer,
+	NodeHttpServerRequest,
+	NodeRuntime,
+} from '@effect/platform-node'
+import { Config, Effect, Layer, flow, pipe } from 'effect'
 
-import { handler } from './handler.ts'
+import { createHttpHandler } from './create-http-handler.ts'
 import { viteMiddleware } from './vite-middleware.ts'
 
 // Define the router with a single route for the root URL
 const router = HttpRouter.empty.pipe(
-	HttpRouter.all('*', handler.pipe(viteMiddleware)),
+	HttpRouter.all(
+		'*',
+		Effect.gen(function* () {
+			const httpServerRequest = yield* HttpServerRequest.HttpServerRequest
+
+			const handler = createHttpHandler({
+				// @ts-expect-error
+				build: () => import('virtual:react-router/server-build'),
+				getLoadContext: () => ({ VALUE_FROM_EXPRESS: 'Hello from Express' }),
+				mode: yield* Config.string('NODE_ENV'),
+			})
+
+			return yield* handler(
+				NodeHttpServerRequest.toIncomingMessage(httpServerRequest),
+				NodeHttpServerRequest.toServerResponse(httpServerRequest),
+			)
+		}).pipe(viteMiddleware),
+	),
 )
 
 // Set up the application server with logging

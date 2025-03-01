@@ -1,14 +1,8 @@
-import type { IncomingMessage, ServerResponse } from 'node:http'
-import {
-	Headers,
-	HttpServerRequest,
-	HttpServerResponse,
-} from '@effect/platform'
+import { HttpServerRequest } from '@effect/platform'
 import { NodeHttpServerRequest } from '@effect/platform-node'
-import { Effect, Stream } from 'effect'
-import * as ReactRouter from 'react-router'
+import { Config, Effect } from 'effect'
 
-import { createRemixRequest } from './create-remix-request.ts'
+import { createHttpHandler } from 'server/effect-platform/create-http-handler.ts'
 
 /**
  * A generator-based `handler` function utilizing effects to process HTTP server requests
@@ -36,41 +30,16 @@ import { createRemixRequest } from './create-remix-request.ts'
  */
 export const handler = Effect.gen(function* () {
 	const httpServerRequest = yield* HttpServerRequest.HttpServerRequest
-	const incomingMessage =
-		NodeHttpServerRequest.toIncomingMessage(httpServerRequest)
-	const serverResponse: ServerResponse<IncomingMessage> =
-		NodeHttpServerRequest.toServerResponse(httpServerRequest)
 
-	// (request: Request, loadContext?: AppLoadContext$1) => Promise<Response>;
-	const handleRequest = ReactRouter.createRequestHandler(
+	const handler = createHttpHandler({
 		// @ts-expect-error
-		() => import('virtual:react-router/server-build'),
-		process.env['NODE_ENV'],
+		build: () => import('virtual:react-router/server-build'),
+		getLoadContext: () => ({ VALUE_FROM_EXPRESS: 'Hello from Express' }),
+		mode: yield* Config.string('NODE_ENV'),
+	})
+
+	return yield* handler(
+		NodeHttpServerRequest.toIncomingMessage(httpServerRequest),
+		NodeHttpServerRequest.toServerResponse(httpServerRequest),
 	)
-
-	const request = createRemixRequest(incomingMessage, serverResponse)
-	const response = yield* Effect.promise(() => handleRequest(request))
-
-	if (response.headers.get('Content-Type')?.match(/text\/event-stream/i)) {
-		serverResponse.flushHeaders()
-	}
-
-	const options: HttpServerResponse.Options = {
-		status: response.status,
-		statusText: response.statusText,
-		headers: Headers.fromInput(response.headers),
-	}
-
-	if (response.body) {
-		return yield* HttpServerResponse.stream(
-			Stream.fromReadableStream(
-				// biome-ignore lint/style/noNonNullAssertion: <explanation>
-				() => response.body!,
-				(error) => new Error(`Error reading response stream: ${String(error)}`),
-			),
-			options,
-		)
-	}
-
-	return yield* HttpServerResponse.empty(options)
 })
