@@ -1,12 +1,14 @@
 import { createServer } from 'node:http'
 import { HttpMiddleware, HttpRouter, HttpServer } from '@effect/platform'
 import { NodeHttpServer, NodeRuntime } from '@effect/platform-node'
-import { Effect, Layer, flow } from 'effect'
+import { Config, Effect, Layer, flow } from 'effect'
 
 import { viteMiddleware } from './vite-middleware.ts'
 import { ViteDevServerService } from './vite-service.ts'
 
-const ServerLive = NodeHttpServer.layer(createServer, { port: 3000 })
+const ServerLive = NodeHttpServer.layerConfig(createServer, {
+	port: Config.number('PORT').pipe(Config.withDefault(3000)),
+})
 
 const HttpLive = HttpRouter.empty.pipe(
 	HttpRouter.all(
