@@ -1,4 +1,4 @@
-import { Effect } from 'effect'
+import { Context, Effect } from 'effect'
 import type { ViteDevServer } from 'vite'
 
 /**
@@ -13,8 +13,8 @@ export class ViteServiceSingleton {
 
 	readonly #viteDevServer: ViteDevServer
 
-	private constructor(viteDveServer: ViteDevServer) {
-		this.#viteDevServer = viteDveServer
+	private constructor(viteDevServer: ViteDevServer) {
+		this.#viteDevServer = viteDevServer
 	}
 
 	/**
@@ -59,3 +59,8 @@ export class ViteServiceSingleton {
 		return await this.#viteDevServer.close()
 	}
 }
+
+export class ViteDevServerService extends Context.Tag('ViteDevServerService')<
+	ViteDevServerService,
+	ViteDevServer
+>() {}

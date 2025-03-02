@@ -5,7 +5,7 @@ import {
 } from '@effect/platform'
 import { NodeHttpServerRequest } from '@effect/platform-node'
 import { Data, Effect } from 'effect'
-import { ViteServiceSingleton } from './vite-service.ts'
+import { ViteDevServerService } from './vite-service.ts'
 
 class MiddlewareError extends Data.TaggedError('MiddlewareError')<{
 	message: string
@@ -48,8 +48,7 @@ export const viteMiddleware = HttpMiddleware.make((app) =>
 		const serverResponse =
 			NodeHttpServerRequest.toServerResponse(httpServerRequest)
 
-		const { viteDevServer } =
-			yield* ViteServiceSingleton.getInstanceEffectually()
+		const viteDevServer = yield* ViteDevServerService
 
 		return yield* Effect.async<
 			Effect.Effect.Success<typeof app>,

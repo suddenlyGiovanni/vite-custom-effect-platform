@@ -1,17 +1,17 @@
+import { createServer } from 'node:http'
 import { HttpMiddleware, HttpRouter, HttpServer } from '@effect/platform'
+import { NodeHttpServer, NodeRuntime } from '@effect/platform-node'
+import { Effect, Layer, flow, pipe } from 'effect'
 
-import { Effect, flow, pipe } from 'effect'
-import { listen } from './listen.ts'
 import { viteMiddleware } from './vite-middleware.ts'
-import { ViteServiceSingleton } from './vite-service.ts'
+import { ViteDevServerService, ViteServiceSingleton } from './vite-service.ts'
 
 // Define the router with a single route for the root URL
 const router = HttpRouter.empty.pipe(
 	HttpRouter.all(
 		'*',
 		Effect.gen(function* () {
-			const { viteDevServer } =
-				yield* ViteServiceSingleton.getInstanceEffectually()
+			const viteDevServer = yield* ViteDevServerService
 
 			const { handler } = yield* Effect.promise(
 				() =>
@@ -34,4 +34,22 @@ const app = pipe(
 	HttpServer.withLogAddress,
 )
 
-listen(app, 3000)
+const AppConfigLive = Layer.merge(
+	NodeHttpServer.layer(() => createServer(), { port: 3000 }),
+	Layer.effect(
+		ViteDevServerService,
+		ViteServiceSingleton.getInstanceEffectually().pipe(
+			Effect.map((_) => _.viteDevServer),
+		),
+	),
+)
+
+NodeRuntime.runMain(
+	Layer.launch(
+		Layer.provide(
+			app,
+			// Create a server layer with the specified port
+			AppConfigLive,
+		),
+	),
+)
