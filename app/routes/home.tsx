@@ -1,17 +1,10 @@
-import { Welcome } from '../welcome/welcome.tsx'
-import type { Route } from './+types/home.ts'
-
-export function meta(_: Route.MetaArgs) {
-	return [
-		{ title: 'New React Router App' },
-		{ name: 'description', content: 'Welcome to React Router!' },
-	]
-}
-
-export function loader({ context }: Route.LoaderArgs) {
-	return { message: context['VALUE_FROM_EXPRESS'] }
-}
-
-export default function Home({ loaderData }: Route.ComponentProps) {
-	return <Welcome message={loaderData.message} />
+export default function Home() {
+	return (
+		<p id="index-page">
+			This is a demo for React Router.
+			<br />
+			Check out{' '}
+			<a href="https://reactrouter.com">the docs at reactrouter.com</a>.
+		</p>
+	)
 }

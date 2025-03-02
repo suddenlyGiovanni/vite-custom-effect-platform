@@ -9,6 +9,7 @@ export default defineConfig(({ isSsrBuild }) => ({
 			? { input: './server/effect-platform/handler.ts' }
 			: undefined,
 		target: 'esnext',
+		minify: false,
 		externalImportAttributes: true,
 		sourcemap: true,
 	},

@@ -6,6 +6,9 @@ export default {
 		 * Server-side render by default, to enable SPA mode set this to `false`
 		 */
 		ssr: true,
-		serverModuleFormat: 'esm'
-
+		prerender: ['/about'],
+		serverModuleFormat: 'esm',
+		future: {
+			unstable_splitRouteModules: true,
+		}
 } satisfies Config
