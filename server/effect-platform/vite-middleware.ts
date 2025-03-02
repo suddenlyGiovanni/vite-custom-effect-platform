@@ -56,7 +56,6 @@ export const viteMiddleware = HttpMiddleware.make((app) =>
 			Effect.Effect.Context<typeof app>
 		>((resume) => {
 			const listener = (): void => {
-				console.log('listener')
 				resume(
 					Effect.succeed(
 						HttpServerResponse.raw(null, {
@@ -68,7 +67,6 @@ export const viteMiddleware = HttpMiddleware.make((app) =>
 			}
 
 			serverResponse.once('close', () => {
-				console.log('close')
 				listener()
 			})
 
@@ -77,11 +75,9 @@ export const viteMiddleware = HttpMiddleware.make((app) =>
 				serverResponse,
 				(err?: unknown): void => {
 					if (err) {
-						console.log(err)
 						resume(Effect.fail(new MiddlewareError({ message: String(err) })))
 					} else {
 						serverResponse.off('finish', () => {
-							console.log('finish')
 							listener()
 						})
 						resume(app)

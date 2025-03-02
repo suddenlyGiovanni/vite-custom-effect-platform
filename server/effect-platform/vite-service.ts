@@ -1,4 +1,4 @@
-import { Context, Effect } from 'effect'
+import { Effect } from 'effect'
 import type { ViteDevServer } from 'vite'
 
 /**
@@ -8,7 +8,7 @@ import type { ViteDevServer } from 'vite'
  * and middleware functionality. This promotes consistency, efficient resource usage,
  * and centralizes Vite's operations.
  */
-export class ViteServiceSingleton {
+class ViteServiceSingleton {
 	private static instance: ViteServiceSingleton
 
 	readonly #viteDevServer: ViteDevServer
@@ -60,7 +60,11 @@ export class ViteServiceSingleton {
 	}
 }
 
-export class ViteDevServerService extends Context.Tag('ViteDevServerService')<
-	ViteDevServerService,
-	ViteDevServer
->() {}
+export class ViteDevServerService extends Effect.Service<ViteDevServerService>()(
+	'app/ViteDevServer',
+	{
+		effect: ViteServiceSingleton.getInstanceEffectually().pipe(
+			Effect.map(({ viteDevServer }) => viteDevServer),
+		),
+	},
+) {}
