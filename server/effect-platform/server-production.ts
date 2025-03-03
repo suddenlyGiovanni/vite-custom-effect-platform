@@ -4,6 +4,7 @@ import {
 	HttpMiddleware,
 	HttpRouter,
 	HttpServer,
+	HttpServerRequest,
 	HttpServerResponse,
 } from '@effect/platform'
 import { NodeHttpServer, NodeRuntime } from '@effect/platform-node'
@@ -62,6 +63,27 @@ const HttpLive = HttpRouter.empty.pipe(
 	),
 
 	HttpRouter.get(
+		'/__manifest',
+		Effect.gen(function* () {
+			const fs = yield* FileSystem.FileSystem
+			const { version } = yield* HttpServerRequest.schemaSearchParams(
+				Schema.Struct({ version: Schema.String }),
+			)
+			const filePath = `build/client/assets/manifest-${version}.js`
+			if (yield* fs.exists(filePath)) {
+				const serverResponse = yield* HttpServerResponse.file(filePath)
+				return yield* serverResponse.pipe(
+					HttpServerResponse.setHeader(
+						'Cache-Control',
+						`max-age=${oneYear}, immutable`,
+					),
+				)
+			}
+			return yield* HttpServerResponse.empty({ status: 404 })
+		}),
+	),
+
+	HttpRouter.get(
 		'/:assetName',
 		Effect.gen(function* () {
 			const params = yield* HttpRouter.schemaParams(AssetsSchemaParams)
@@ -69,7 +91,6 @@ const HttpLive = HttpRouter.empty.pipe(
 			const filePath = `build/client/${params.assetName}`
 			if (yield* fs.exists(filePath)) {
 				const serverResponse = yield* HttpServerResponse.file(filePath)
-
 				return yield* serverResponse.pipe(
 					HttpServerResponse.setHeader('Cache-Control', `max-age=${oneHour}`),
 				)
