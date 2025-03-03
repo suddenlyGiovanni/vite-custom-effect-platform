@@ -22,7 +22,7 @@ const HttpLive = HttpRouter.empty.pipe(
 		Effect.gen(function* () {
 			const module = yield* Effect.promise(
 				() =>
-					// @ts-ignore
+					// @ts-expect-error - This is a dynamic import of build stuff
 					import('../../build/server/index.js') as Promise<
 						typeof import('./handler.ts')
 					>,
