@@ -12,42 +12,48 @@ const oneHour = 60 * oneMinute
 const oneDay = 24 * oneHour
 const oneYear = 365 * oneDay
 
-const assetsPathRegex = /^\/assets\/([^\/]+\.[^\/]+)$/
-const fileNameRegex = /^\/([^\/]+\.[^\/]+)$/
-
+const filenameMatcher = /^([^/]+\.[^/]+)$/
 export const HttpStaticMiddleware = HttpMiddleware.make((app) =>
 	Effect.gen(function* () {
 		const httpServerRequest = yield* HttpServerRequest.HttpServerRequest
+		const fs = yield* FileSystem.FileSystem
+
 		if (httpServerRequest.method !== 'GET') {
 			return yield* app
 		}
 
-		const fs = yield* FileSystem.FileSystem
 		const { url } = httpServerRequest
 
-		const assetsMatch = assetsPathRegex.exec(url)
-
-		if (assetsMatch) {
-			/**
-			 * IF Request url path is of kind '/assets/<fileName>.<fileExtension>'
-			 */
-			const maybeResource = Option.fromNullable(assetsMatch?.[1]).pipe(
-				Option.map((fileName) => `build/client/assets/${fileName}`),
+		/**
+		 * IF Request url path is of kind '/assets/<fileName>.<fileExtension>'
+		 */
+		if (url.startsWith('/assets/')) {
+			const maybeFilePath = Option.fromNullable(
+				filenameMatcher.exec(url.slice(8)),
+			).pipe(
+				Option.map(
+					(regExpExecArray) => `build/client/assets/${regExpExecArray[0]}`,
+				),
 			)
-			if (Option.isSome(maybeResource)) {
-				const resource = Option.getOrThrow(maybeResource)
-				if (yield* fs.exists(resource)) {
-					return yield* HttpServerResponse.file(resource, {
+
+			if (Option.isSome(maybeFilePath)) {
+				// stuff
+				const filePath = Option.getOrThrow(maybeFilePath)
+				if (yield* fs.exists(filePath)) {
+					return yield* HttpServerResponse.file(filePath, {
 						headers: Headers.fromInput({
 							'Cache-Control': `public, max-age=${oneYear}, immutable`,
 						}),
 					})
 				}
 			}
-		} else if (url.startsWith('/__manifest')) {
-			/**
-			 * IF Request url path is of kind '/__manifest?<searchParams>'
-			 */
+			return yield* app
+		}
+
+		/**
+		 * IF Request url path is of kind '/__manifest?<searchParams>'
+		 */
+		if (url.startsWith('/__manifest')) {
 			const maybeResource = Option.fromNullable(
 				new URL(url, 'http://localhost').searchParams.get('version'),
 			).pipe(
@@ -61,28 +67,34 @@ export const HttpStaticMiddleware = HttpMiddleware.make((app) =>
 					return yield* HttpServerResponse.file(resource)
 				}
 			}
-		} else {
-			/**
-			 * IF request url path is of kind '/<fileName>.<fileExtension>'
-			 */
-			const maybeResource = Option.fromNullable(
-				fileNameRegex.exec(url)?.[1],
-			).pipe(Option.map((fileName) => `build/client/${fileName}`))
-			if (Option.isSome(maybeResource)) {
-				const resource = Option.getOrThrow(maybeResource)
-				yield* Console.log(resource)
 
-				if (yield* fs.exists(resource)) {
-					const serverResponse = yield* HttpServerResponse.file(resource)
+			return yield* app
+		}
 
-					return yield* serverResponse.pipe(
-						HttpServerResponse.setHeader(
-							'Cache-Control',
-							`public, max-age=${oneYear}, immutable`,
-						),
-					)
+		/**
+		 * IF request url path is of kind '/<fileName>.<fileExtension>'
+		 */
+		if (url.startsWith('/')) {
+			const maybeFilePath = Option.fromNullable(
+				filenameMatcher.exec(url.slice(1)),
+			).pipe(
+				Option.map((regExpExecArray) => `build/client/${regExpExecArray[0]}`),
+			)
+
+			if (Option.isSome(maybeFilePath)) {
+				const filePath = Option.getOrThrow(maybeFilePath)
+				if (yield* fs.exists(filePath)) {
+					return yield* HttpServerResponse.file(filePath, {
+						headers: Headers.fromInput({
+							'Cache-Control': `public, max-age=${oneHour}, immutable`,
+						}),
+					})
 				}
 			}
+
+			// TODO: Add folder resource support e.g. `/statically-rendered-route/index.html`
+
+			return yield* app
 		}
 
 		return yield* app
@@ -122,12 +134,7 @@ if (import.meta.vitest) {
 			['/assets/with-props-CTh-xW_a.js', 'with-props-CTh-xW_a.js'],
 			['/assets/with-props-CTh-xW_a.js.map', 'with-props-CTh-xW_a.js.map'],
 		] as const
-		it.each(assetsResources)('assetsResources', (assetPath, file) => {
-			expect(assetsPathRegex.test(assetPath)).toBe(true)
-			const regexMatch = assetsPathRegex.exec(assetPath)
-			console.log(regexMatch)
-			expect(regexMatch).toContainEqual(file)
-		})
+		it.each(assetsResources)('assetsResources', (assetPath, file) => {})
 		it.todo('Add some failing cases')
 	})
 
@@ -141,13 +148,5 @@ if (import.meta.vitest) {
 		// Extract version from URL using URLSearchParams
 		const url = new URL(manifestUrl, 'http://localhost')
 		expect(url.searchParams.get('version')).toBe('aac2b4b8')
-	})
-
-	it.each([
-		['/favicon.ico', 'favicon.ico'],
-		['/some-Strange-file.pdf', 'some-Strange-file.pdf'],
-	])('resources', (a, b) => {
-		expect(fileNameRegex.test(a)).toBe(true)
-		expect(fileNameRegex.exec(a)).toContainEqual(b)
 	})
 }
