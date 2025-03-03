@@ -28,7 +28,7 @@ const ServerLive = NodeHttpServer.layerConfig(createServer, {
 })
 
 const HttpLive = HttpRouter.empty.pipe(
-	HttpRouter.get(
+	HttpRouter.all(
 		'/',
 		Effect.gen(function* () {
 			const { handler } = yield* Effect.promise(
