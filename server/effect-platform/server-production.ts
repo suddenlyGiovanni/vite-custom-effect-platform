@@ -29,19 +29,17 @@ const ServerLive = NodeHttpServer.layerConfig(createServer, {
 	port: Config.number('PORT').pipe(Config.withDefault(3000)),
 })
 
+const handler = Effect.gen(function* () {
+	const module = yield* Effect.promise(
+		() =>
+			import('../../build/server/index.js') as Promise<
+				typeof import('./handler.ts')
+			>,
+	)
+	return yield* module.handler
+})
+
 const HttpLive = HttpRouter.empty.pipe(
-	HttpRouter.all(
-		'/',
-		Effect.gen(function* () {
-			const { handler } = yield* Effect.promise(
-				() =>
-					import('../../build/server/index.js') as Promise<
-						typeof import('./handler.ts')
-					>,
-			)
-			return yield* handler
-		}),
-	),
 	HttpRouter.get(
 		'/assets/:assetName',
 		Effect.gen(function* () {
@@ -97,6 +95,18 @@ const HttpLive = HttpRouter.empty.pipe(
 			}
 			return yield* HttpServerResponse.empty({ status: 404 })
 		}),
+	),
+
+	HttpRouter.all('/', handler),
+	HttpRouter.all('/*', handler),
+
+	Effect.catchTags({
+		RouteNotFound: () =>
+			HttpServerResponse.text('Route Not Found', { status: 404 }),
+	}),
+
+	Effect.catchAllCause((cause) =>
+		HttpServerResponse.text(cause.toString(), { status: 500 }),
 	),
 
 	HttpServer.serve(
