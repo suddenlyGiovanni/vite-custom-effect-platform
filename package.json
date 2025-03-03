@@ -5,7 +5,7 @@
 		"build": "react-router build",
 		"dev": "NODE_ENV=development node --watch-path=./server --watch-preserve-output server/express/server.ts",
 		"start": "NODE_ENV=production node server/express/server.ts",
-		"typecheck": "react-router typegen && tsc -b"
+		"typecheck": "react-router typegen && tsc --noEmit"
 	},
 	"dependencies": {
 		"@effect/platform": "^0.77.4",
@@ -41,6 +41,7 @@
 		"tailwindcss": "^4.0.9",
 		"typescript": "^5.8.2",
 		"vite": "6.2.0",
+		"vitest": "^3.0.7",
 		"vite-tsconfig-paths": "^5.1.4"
 	},
 	"pnpm": {

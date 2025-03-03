@@ -22,6 +22,7 @@ const HttpLive = HttpRouter.empty.pipe(
 		Effect.gen(function* () {
 			const module = yield* Effect.promise(
 				() =>
+					// @ts-ignore
 					import('../../build/server/index.js') as Promise<
 						typeof import('./handler.ts')
 					>,
