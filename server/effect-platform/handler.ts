@@ -1,8 +1,9 @@
 import { HttpServerRequest } from '@effect/platform'
 import { NodeHttpServerRequest } from '@effect/platform-node'
-import { Config, Effect } from 'effect'
+import { Effect } from 'effect'
 
 import { createHttpHandler } from './adapters/create-http-handler.ts'
+import { ConfigService } from './config-service.ts'
 
 /**
  * A generator-based `handler` function utilizing effects to process HTTP server requests
@@ -30,12 +31,13 @@ import { createHttpHandler } from './adapters/create-http-handler.ts'
  */
 export const handler = Effect.gen(function* () {
 	const httpServerRequest = yield* HttpServerRequest.HttpServerRequest
+	const { NODE_ENV } = yield* ConfigService
 
 	const handler = createHttpHandler({
 		// @ts-expect-error
 		build: () => import('virtual:react-router/server-build'),
 		getLoadContext: () => ({ VALUE_FROM_EXPRESS: 'Hello from Express' }),
-		mode: yield* Config.string('NODE_ENV'),
+		mode: NODE_ENV,
 	})
 
 	return yield* handler(

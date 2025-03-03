@@ -9,6 +9,7 @@ import {
 import { NodeHttpServer, NodeRuntime } from '@effect/platform-node'
 import { Config, Effect, Layer, Schema, flow } from 'effect'
 
+import { ConfigService } from './config-service.ts'
 import { ViteDevServerService } from './vite-service.ts'
 
 const AssetsSchemaParams = Schema.Struct({
@@ -83,6 +84,7 @@ const HttpLive = HttpRouter.empty.pipe(
 	HttpServer.withLogAddress,
 	Layer.provide(ViteDevServerService.Default),
 	Layer.provide(ServerLive),
+	Layer.provide(ConfigService.Default),
 )
 
 NodeRuntime.runMain(Layer.launch(HttpLive))

@@ -3,6 +3,7 @@ import { HttpMiddleware, HttpRouter, HttpServer } from '@effect/platform'
 import { NodeHttpServer, NodeRuntime } from '@effect/platform-node'
 import { Config, Effect, Layer, flow } from 'effect'
 
+import { ConfigService } from './config-service.ts'
 import { viteMiddleware } from './vite-middleware.ts'
 import { ViteDevServerService } from './vite-service.ts'
 
@@ -32,6 +33,7 @@ const HttpLive = HttpRouter.empty.pipe(
 	HttpServer.withLogAddress,
 	Layer.provide(ViteDevServerService.Default),
 	Layer.provide(ServerLive),
+	Layer.provide(ConfigService.Default),
 )
 
 NodeRuntime.runMain(Layer.launch(HttpLive))
