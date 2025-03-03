@@ -18,67 +18,69 @@ const fileNameRegex = /^\/([^\/]+\.[^\/]+)$/
 export const HttpStaticMiddleware = HttpMiddleware.make((app) =>
 	Effect.gen(function* () {
 		const httpServerRequest = yield* HttpServerRequest.HttpServerRequest
+		if (httpServerRequest.method !== 'GET') {
+			return yield* app
+		}
+
 		const fs = yield* FileSystem.FileSystem
-		if (httpServerRequest.method === 'GET') {
-			const { url } = httpServerRequest
+		const { url } = httpServerRequest
 
-			const assetsMatch = assetsPathRegex.exec(url)
+		const assetsMatch = assetsPathRegex.exec(url)
 
-			if (assetsMatch) {
-				/**
-				 * IF Request url path is of kind '/assets/<fileName>.<fileExtension>'
-				 */
-				const maybeResource = Option.fromNullable(assetsMatch?.[1]).pipe(
-					Option.map((fileName) => `build/client/assets/${fileName}`),
-				)
-				if (Option.isSome(maybeResource)) {
-					const resource = Option.getOrThrow(maybeResource)
-					if (yield* fs.exists(resource)) {
-						return yield* HttpServerResponse.file(resource, {
-							headers: Headers.fromInput({
-								'Cache-Control': `public, max-age=${oneYear}, immutable`,
-							}),
-						})
-					}
+		if (assetsMatch) {
+			/**
+			 * IF Request url path is of kind '/assets/<fileName>.<fileExtension>'
+			 */
+			const maybeResource = Option.fromNullable(assetsMatch?.[1]).pipe(
+				Option.map((fileName) => `build/client/assets/${fileName}`),
+			)
+			if (Option.isSome(maybeResource)) {
+				const resource = Option.getOrThrow(maybeResource)
+				if (yield* fs.exists(resource)) {
+					return yield* HttpServerResponse.file(resource, {
+						headers: Headers.fromInput({
+							'Cache-Control': `public, max-age=${oneYear}, immutable`,
+						}),
+					})
 				}
-			} else if (url.startsWith('/__manifest')) {
-				/**
-				 * IF Request url path is of kind '/__manifest?<searchParams>'
-				 */
-				const maybeResource = Option.fromNullable(
-					new URL(url, 'http://localhost').searchParams.get('version'),
-				).pipe(
-					Option.map((version) => `build/client/assets/manifest-${version}.js`),
-				)
-				if (Option.isSome(maybeResource)) {
-					const resource = Option.getOrThrow(maybeResource)
-					yield* Console.log(resource)
+			}
+		} else if (url.startsWith('/__manifest')) {
+			/**
+			 * IF Request url path is of kind '/__manifest?<searchParams>'
+			 */
+			const maybeResource = Option.fromNullable(
+				new URL(url, 'http://localhost').searchParams.get('version'),
+			).pipe(
+				Option.map((version) => `build/client/assets/manifest-${version}.js`),
+			)
+			if (Option.isSome(maybeResource)) {
+				const resource = Option.getOrThrow(maybeResource)
+				yield* Console.log(resource)
 
-					if (yield* fs.exists(resource)) {
-						return yield* HttpServerResponse.file(resource)
-					}
+				if (yield* fs.exists(resource)) {
+					return yield* HttpServerResponse.file(resource)
 				}
-			} else {
-				/**
-				 * IF request url path is of kind '/<fileName>.<fileExtension>'
-				 */
-				const maybeResource = Option.fromNullable(
-					fileNameRegex.exec(url)?.[1],
-				).pipe(Option.map((fileName) => `build/client/${fileName}`))
-				if (Option.isSome(maybeResource)) {
-					const resource = Option.getOrThrow(maybeResource)
-					yield* Console.log(resource)
+			}
+		} else {
+			/**
+			 * IF request url path is of kind '/<fileName>.<fileExtension>'
+			 */
+			const maybeResource = Option.fromNullable(
+				fileNameRegex.exec(url)?.[1],
+			).pipe(Option.map((fileName) => `build/client/${fileName}`))
+			if (Option.isSome(maybeResource)) {
+				const resource = Option.getOrThrow(maybeResource)
+				yield* Console.log(resource)
 
-					if (yield* fs.exists(resource)) {
-						const serverResponse = yield* HttpServerResponse.file(resource)
+				if (yield* fs.exists(resource)) {
+					const serverResponse = yield* HttpServerResponse.file(resource)
 
-						return yield* serverResponse.pipe(
-							HttpServerResponse.setHeader(
-								'Cache-Control',
-								`public, max-age=${oneYear}, immutable`,
-							),
-						)
-					}
+					return yield* serverResponse.pipe(
+						HttpServerResponse.setHeader(
+							'Cache-Control',
+							`public, max-age=${oneYear}, immutable`,
+						),
+					)
 				}
 			}
 		}
