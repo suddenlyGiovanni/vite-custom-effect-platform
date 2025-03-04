@@ -1,4 +1,3 @@
-import type { IncomingMessage, ServerResponse } from 'node:http'
 import {
 	Headers,
 	HttpServerRequest,
@@ -11,9 +10,8 @@ import * as ReactRouter from 'react-router'
 import { createReactRouterRequest } from './create-react-router-request.ts'
 
 type GetLoadContextFunction = (
-	req: IncomingMessage,
-	res: ServerResponse<IncomingMessage>,
-) => Promise<ReactRouter.AppLoadContext> | ReactRouter.AppLoadContext
+	httpServerRequest: HttpServerRequest.HttpServerRequest,
+) => Effect.Effect<ReactRouter.AppLoadContext>
 
 export function createHttpHandler({
 	build,
@@ -42,13 +40,9 @@ export function createHttpHandler({
 			serverResponse,
 		)
 
-		let loadContext: ReactRouter.AppLoadContext | undefined = undefined
-
-		if (getLoadContext) {
-			loadContext = yield* Effect.promise(
-				async () => await getLoadContext(incomingMessage, serverResponse),
-			)
-		}
+		const loadContext = getLoadContext
+			? yield* getLoadContext(httpServerRequest)
+			: undefined
 
 		const response: Response = yield* Effect.promise(() =>
 			handleRequest(request, loadContext),
