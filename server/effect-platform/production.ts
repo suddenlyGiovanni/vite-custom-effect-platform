@@ -4,7 +4,7 @@ import { Effect } from 'effect'
 import {
 	PublicAssetsMiddleware,
 	StaticAssetsMiddleware,
-} from './assets-middleware.ts'
+} from './middlewares/assets-middleware.ts'
 
 export const Production = HttpRouter.empty.pipe(
 	HttpRouter.all(

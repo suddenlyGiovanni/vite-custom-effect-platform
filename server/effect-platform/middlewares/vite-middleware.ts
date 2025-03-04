@@ -6,7 +6,7 @@ import {
 import { NodeHttpServerRequest } from '@effect/platform-node'
 import { Data, Effect } from 'effect'
 
-import { ViteDevServerService } from './services/vite-service.ts'
+import { ViteDevServerService } from '../services/vite-service.ts'
 
 class MiddlewareError extends Data.TaggedError('MiddlewareError')<{
 	message: string
