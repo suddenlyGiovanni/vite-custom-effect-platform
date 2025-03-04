@@ -1,11 +1,12 @@
 import {
+	Headers,
 	HttpServerRequest,
 	HttpServerResponse,
-	Headers as _Headers,
 } from '@effect/platform'
 import { NodeHttpServerRequest } from '@effect/platform-node'
 import { Effect, Stream } from 'effect'
 import * as ReactRouter from 'react-router'
+
 import * as ReactRouterNode from '../../react-router-node/index.ts'
 
 type GetLoadContextFunction = (
@@ -109,7 +110,7 @@ export function createHttpHandler({
 		const options: HttpServerResponse.Options = {
 			status: response.status,
 			statusText: response.statusText,
-			headers: _Headers.fromInput(response.headers),
+			headers: Headers.fromInput(response.headers),
 		}
 
 		if (response.body) {

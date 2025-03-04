@@ -1,7 +1,7 @@
 import type { HttpServerRequest, HttpServerResponse } from '@effect/platform'
 import { Effect } from 'effect'
 
-import { createHttpHandler } from '../react-router-adapters/index.ts'
+import { createHttpHandler } from '../react-router-adapters/create-http-handler.ts'
 import { ConfigService } from '../services/config-service.ts'
 
 export const handler: Effect.Effect<
