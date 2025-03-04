@@ -107,14 +107,12 @@ if (import.meta.vitest) {
 	})
 }
 
-export const HttpStaticMiddleware = HttpMiddleware.make((app) =>
+export const StaticAssetsMiddleware = HttpMiddleware.make((app) =>
 	Effect.gen(function* () {
 		const httpServerRequest = yield* HttpServerRequest.HttpServerRequest
 		const fs = yield* FileSystem.FileSystem
 
-		if (httpServerRequest.method !== 'GET') {
-			return yield* app
-		}
+		if (httpServerRequest.method !== 'GET') return yield* app
 
 		const { url } = httpServerRequest
 
@@ -131,7 +129,6 @@ export const HttpStaticMiddleware = HttpMiddleware.make((app) =>
 			)
 
 			if (Option.isSome(maybeFilePath)) {
-				// stuff
 				const filePath = Option.getOrThrow(maybeFilePath)
 				if (yield* fs.exists(filePath)) {
 					return yield* HttpServerResponse.file(filePath, {
@@ -141,29 +138,20 @@ export const HttpStaticMiddleware = HttpMiddleware.make((app) =>
 					})
 				}
 			}
-			return yield* app
 		}
 
-		/**
-		 * IF Request url path is of kind '/__manifest?<searchParams>'
-		 */
-		if (url.startsWith('/__manifest')) {
-			const maybeResource = Option.fromNullable(
-				new URL(url, 'http://localhost').searchParams.get('version'),
-			).pipe(
-				Option.map((version) => `build/client/assets/manifest-${version}.js`),
-			)
-			if (Option.isSome(maybeResource)) {
-				const resource = Option.getOrThrow(maybeResource)
-				yield* Console.log(resource)
+		return yield* app
+	}),
+)
 
-				if (yield* fs.exists(resource)) {
-					return yield* HttpServerResponse.file(resource)
-				}
-			}
+export const PublicAssetsMiddleware = HttpMiddleware.make((app) =>
+	Effect.gen(function* () {
+		const httpServerRequest = yield* HttpServerRequest.HttpServerRequest
+		const fs = yield* FileSystem.FileSystem
 
-			return yield* app
-		}
+		if (httpServerRequest.method !== 'GET') return yield* app
+
+		const { url } = httpServerRequest
 
 		/**
 		 * IF request url path is of kind '/<fileName>.<fileExtension>'
@@ -198,8 +186,38 @@ export const HttpStaticMiddleware = HttpMiddleware.make((app) =>
 					return yield* HttpServerResponse.file(nestedFilePath)
 				}
 			}
+		}
 
-			return yield* app
+		return yield* app
+	}),
+)
+
+export const ManifestAssetsMiddleware = HttpMiddleware.make((app) =>
+	Effect.gen(function* () {
+		const httpServerRequest = yield* HttpServerRequest.HttpServerRequest
+		const fs = yield* FileSystem.FileSystem
+
+		if (httpServerRequest.method !== 'GET') return yield* app
+
+		const { url } = httpServerRequest
+
+		/**
+		 * IF Request url path is of kind '/__manifest?<searchParams>'
+		 */
+		if (url.startsWith('/__manifest')) {
+			const maybeResource = Option.fromNullable(
+				new URL(url, 'http://localhost').searchParams.get('version'),
+			).pipe(
+				Option.map((version) => `build/client/assets/manifest-${version}.js`),
+			)
+			if (Option.isSome(maybeResource)) {
+				const resource = Option.getOrThrow(maybeResource)
+				yield* Console.log(resource)
+
+				if (yield* fs.exists(resource)) {
+					return yield* HttpServerResponse.file(resource)
+				}
+			}
 		}
 
 		return yield* app

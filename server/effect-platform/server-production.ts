@@ -8,8 +8,12 @@ import {
 import { NodeHttpServer, NodeRuntime } from '@effect/platform-node'
 import { Config, Console, Effect, Layer, flow } from 'effect'
 
+import {
+	ManifestAssetsMiddleware,
+	PublicAssetsMiddleware,
+	StaticAssetsMiddleware,
+} from './assets-middleware.ts'
 import { ConfigService } from './config-service.ts'
-import { HttpStaticMiddleware } from './http-static-middleware.ts'
 import { ViteDevServerService } from './vite-service.ts'
 
 const ServerLive = NodeHttpServer.layerConfig(createServer, {
@@ -17,7 +21,6 @@ const ServerLive = NodeHttpServer.layerConfig(createServer, {
 })
 
 const HttpLive = HttpRouter.empty.pipe(
-	HttpRouter.use(HttpStaticMiddleware),
 	HttpRouter.all(
 		'*',
 		Effect.gen(function* () {
@@ -31,6 +34,10 @@ const HttpLive = HttpRouter.empty.pipe(
 			return yield* module.handler
 		}),
 	),
+	HttpRouter.use(StaticAssetsMiddleware),
+
+	// HttpRouter.use(PublicAssetsMiddleware),
+	// HttpRouter.use(ManifestAssetsMiddleware),
 
 	Effect.catchTags({
 		RouteNotFound: (_) =>
