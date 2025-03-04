@@ -1,5 +1,3 @@
-import { HttpServerRequest } from '@effect/platform'
-import { NodeHttpServerRequest } from '@effect/platform-node'
 import { Effect } from 'effect'
 
 import { createHttpHandler } from '../react-router-adapters/index.ts'
@@ -30,18 +28,12 @@ import { ConfigService } from '../services/config-service.ts'
  *   of dynamic imports for React Router server builds.
  */
 export const handler = Effect.gen(function* () {
-	const httpServerRequest = yield* HttpServerRequest.HttpServerRequest
 	const { NODE_ENV } = yield* ConfigService
 
-	const handler = createHttpHandler({
-		// @ts-expect-error
+	return yield* createHttpHandler({
+		// @ts-expect-error - This is a dynamic import of build stuff
 		build: () => import('virtual:react-router/server-build'),
 		getLoadContext: () => ({ VALUE_FROM_EXPRESS: 'Hello from Express' }),
 		mode: NODE_ENV,
 	})
-
-	return yield* handler(
-		NodeHttpServerRequest.toIncomingMessage(httpServerRequest),
-		NodeHttpServerRequest.toServerResponse(httpServerRequest),
-	)
 })
