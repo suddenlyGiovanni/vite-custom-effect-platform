@@ -17,6 +17,7 @@ const ServerLive = NodeHttpServer.layerConfig(createServer, {
 })
 
 const HttpLive = HttpRouter.empty.pipe(
+	HttpRouter.use(HttpStaticMiddleware),
 	HttpRouter.all(
 		'*',
 		Effect.gen(function* () {
@@ -30,8 +31,6 @@ const HttpLive = HttpRouter.empty.pipe(
 			return yield* module.handler
 		}),
 	),
-
-	HttpRouter.use(HttpStaticMiddleware),
 
 	Effect.catchTags({
 		RouteNotFound: (_) =>
