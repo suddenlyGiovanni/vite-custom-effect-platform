@@ -2,7 +2,7 @@ import { HttpServerRequest } from '@effect/platform'
 import { NodeHttpServerRequest } from '@effect/platform-node'
 import { Effect } from 'effect'
 
-import { createHttpHandler } from './adapters/create-http-handler.ts'
+import { createHttpHandler } from './react-router-adapters/index.ts'
 import { ConfigService } from './services/config-service.ts'
 
 /**
