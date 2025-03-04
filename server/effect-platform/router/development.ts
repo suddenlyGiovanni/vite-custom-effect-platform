@@ -13,8 +13,8 @@ export const Development = HttpRouter.empty.pipe(
 			const { handler } = yield* Effect.promise(
 				() =>
 					viteDevServer.ssrLoadModule(
-						'./server/effect-platform/handler.ts',
-					) as Promise<typeof import('../handler.ts')>,
+						'./server/effect-platform/handler/handler.ts',
+					) as Promise<typeof import('../handler/handler.ts')>,
 			)
 
 			return yield* handler

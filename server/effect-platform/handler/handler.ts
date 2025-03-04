@@ -2,8 +2,8 @@ import { HttpServerRequest } from '@effect/platform'
 import { NodeHttpServerRequest } from '@effect/platform-node'
 import { Effect } from 'effect'
 
-import { createHttpHandler } from './react-router-adapters/index.ts'
-import { ConfigService } from './services/config-service.ts'
+import { createHttpHandler } from '../react-router-adapters/index.ts'
+import { ConfigService } from '../services/config-service.ts'
 
 /**
  * A generator-based `handler` function utilizing effects to process HTTP server requests

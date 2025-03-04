@@ -13,8 +13,8 @@ export const Production = HttpRouter.empty.pipe(
 			const module = yield* Effect.promise(
 				() =>
 					// @ts-expect-error - This is a dynamic import of build stuff
-					import('../../build/server/index.js') as Promise<
-						typeof import('../handler.ts')
+					import('../../../build/server/index.js') as Promise<
+						typeof import('../handler/handler.ts')
 					>,
 			)
 			return yield* module.handler
