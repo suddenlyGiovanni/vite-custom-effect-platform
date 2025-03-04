@@ -22,8 +22,12 @@ export function createHttpHandler({
 }: {
 	build: ReactRouter.ServerBuild | (() => Promise<ReactRouter.ServerBuild>)
 	getLoadContext?: GetLoadContextFunction
-	mode?: 'development' | 'production' | (string & {})
-}) {
+	mode?: 'development' | 'production'
+}): Effect.Effect<
+	HttpServerResponse.HttpServerResponse,
+	never,
+	HttpServerRequest.HttpServerRequest
+> {
 	const handleRequest = ReactRouter.createRequestHandler(build, mode)
 
 	return Effect.gen(function* () {
