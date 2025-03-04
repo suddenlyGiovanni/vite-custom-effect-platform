@@ -6,10 +6,10 @@ import {
 	HttpServerResponse,
 } from '@effect/platform'
 import { NodeHttpServer, NodeRuntime } from '@effect/platform-node'
-import { Config, Effect, Layer, flow } from 'effect'
-import { HttpStaticMiddleware } from './http-static-middleware.ts'
+import { Config, Console, Effect, Layer, flow } from 'effect'
 
 import { ConfigService } from './config-service.ts'
+import { HttpStaticMiddleware } from './http-static-middleware.ts'
 import { ViteDevServerService } from './vite-service.ts'
 
 const ServerLive = NodeHttpServer.layerConfig(createServer, {
@@ -32,12 +32,20 @@ const HttpLive = HttpRouter.empty.pipe(
 	),
 
 	Effect.catchTags({
-		RouteNotFound: () =>
-			HttpServerResponse.text('Route Not Found', { status: 404 }),
+		RouteNotFound: (_) =>
+			Effect.gen(function* () {
+				yield* Console.error('Route Not Found', _)
+				return yield* HttpServerResponse.text('Route Not Found', {
+					status: 404,
+				})
+			}),
 	}),
 
 	Effect.catchAllCause((cause) =>
-		HttpServerResponse.text(cause.toString(), { status: 500 }),
+		Effect.gen(function* () {
+			yield* Console.error(cause)
+			return yield* HttpServerResponse.text(cause.toString(), { status: 500 })
+		}),
 	),
 
 	HttpServer.serve(
