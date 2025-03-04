@@ -3,8 +3,8 @@
 	"type": "module",
 	"scripts": {
 		"build": "react-router build",
-		"dev": "NODE_ENV=development node --watch-path=./server --watch-preserve-output server/effect-platform/server-development.ts",
-		"start": "NODE_ENV=production node --inspect server/effect-platform/server-production.ts",
+		"dev": "NODE_ENV=development node --watch-path=./server --watch-preserve-output server/effect-platform/server.ts",
+		"start": "NODE_ENV=production node --inspect server/effect-platform/server.ts",
 		"typecheck": "react-router typegen && tsc --noEmit"
 	},
 	"dependencies": {
