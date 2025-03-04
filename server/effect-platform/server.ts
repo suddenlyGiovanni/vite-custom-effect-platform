@@ -7,8 +7,8 @@ import {
 import { NodeHttpServer, NodeRuntime } from '@effect/platform-node'
 import { Config, Console, Effect, Layer, flow } from 'effect'
 
-import { Development } from './development.ts'
-import { Production } from './production.ts'
+import { Development } from './router/development.ts'
+import { Production } from './router/production.ts'
 import { ConfigService, ViteDevServerService } from './services/index.ts'
 
 const ServerLive = NodeHttpServer.layerConfig(createServer, {

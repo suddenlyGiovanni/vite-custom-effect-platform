@@ -1,8 +1,8 @@
 import { HttpRouter } from '@effect/platform'
 import { Effect } from 'effect'
 
-import { viteMiddleware } from './middlewares/vite-middleware.ts'
-import { ViteDevServerService } from './services/vite-service.ts'
+import { viteMiddleware } from '../middlewares/vite-middleware.ts'
+import { ViteDevServerService } from '../services/vite-service.ts'
 
 export const Development = HttpRouter.empty.pipe(
 	HttpRouter.all(
@@ -14,7 +14,7 @@ export const Development = HttpRouter.empty.pipe(
 				() =>
 					viteDevServer.ssrLoadModule(
 						'./server/effect-platform/handler.ts',
-					) as Promise<typeof import('./handler.ts')>,
+					) as Promise<typeof import('../handler.ts')>,
 			)
 
 			return yield* handler
