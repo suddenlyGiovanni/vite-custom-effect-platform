@@ -25,8 +25,11 @@ const HttpLive = HttpRouter.empty.pipe(
 			)
 
 			return yield* handler
-		}).pipe(viteMiddleware),
+		}),
 	),
+
+	HttpRouter.use(viteMiddleware),
+
 	HttpServer.serve(
 		flow(HttpMiddleware.xForwardedHeaders, HttpMiddleware.logger),
 	),
