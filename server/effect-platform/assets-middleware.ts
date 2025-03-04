@@ -5,7 +5,7 @@ import {
 	HttpServerRequest,
 	HttpServerResponse,
 } from '@effect/platform'
-import { Console, Effect, Option } from 'effect'
+import { Effect, Option } from 'effect'
 
 const oneMinute = 60
 const oneHour = 60 * oneMinute
@@ -148,10 +148,13 @@ export const PublicAssetsMiddleware = HttpMiddleware.make((app) =>
 	Effect.gen(function* () {
 		const httpServerRequest = yield* HttpServerRequest.HttpServerRequest
 		const fs = yield* FileSystem.FileSystem
+		const { url } = httpServerRequest
+		const cacheHeaders = Headers.fromInput({
+			'Cache-Control': `public, max-age=${oneHour}, immutable`,
+		})
 
 		if (httpServerRequest.method !== 'GET') return yield* app
-
-		const { url } = httpServerRequest
+		if (url.startsWith('/__manifest')) return yield* app
 
 		/**
 		 * IF request url path is of kind '/<fileName>.<fileExtension>'
@@ -167,9 +170,7 @@ export const PublicAssetsMiddleware = HttpMiddleware.make((app) =>
 				const filePath = Option.getOrThrow(maybeFilePath)
 				if (yield* fs.exists(filePath)) {
 					return yield* HttpServerResponse.file(filePath, {
-						headers: Headers.fromInput({
-							'Cache-Control': `public, max-age=${oneHour}, immutable`,
-						}),
+						headers: cacheHeaders,
 					})
 				}
 			}
@@ -183,39 +184,9 @@ export const PublicAssetsMiddleware = HttpMiddleware.make((app) =>
 			if (Option.isSome(maybeNestedFilePath)) {
 				const nestedFilePath = Option.getOrThrow(maybeNestedFilePath)
 				if (yield* fs.exists(nestedFilePath)) {
-					return yield* HttpServerResponse.file(nestedFilePath)
-				}
-			}
-		}
-
-		return yield* app
-	}),
-)
-
-export const ManifestAssetsMiddleware = HttpMiddleware.make((app) =>
-	Effect.gen(function* () {
-		const httpServerRequest = yield* HttpServerRequest.HttpServerRequest
-		const fs = yield* FileSystem.FileSystem
-
-		if (httpServerRequest.method !== 'GET') return yield* app
-
-		const { url } = httpServerRequest
-
-		/**
-		 * IF Request url path is of kind '/__manifest?<searchParams>'
-		 */
-		if (url.startsWith('/__manifest')) {
-			const maybeResource = Option.fromNullable(
-				new URL(url, 'http://localhost').searchParams.get('version'),
-			).pipe(
-				Option.map((version) => `build/client/assets/manifest-${version}.js`),
-			)
-			if (Option.isSome(maybeResource)) {
-				const resource = Option.getOrThrow(maybeResource)
-				yield* Console.log(resource)
-
-				if (yield* fs.exists(resource)) {
-					return yield* HttpServerResponse.file(resource)
+					return yield* HttpServerResponse.file(nestedFilePath, {
+						headers: cacheHeaders,
+					})
 				}
 			}
 		}

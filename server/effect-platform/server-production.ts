@@ -9,7 +9,6 @@ import { NodeHttpServer, NodeRuntime } from '@effect/platform-node'
 import { Config, Console, Effect, Layer, flow } from 'effect'
 
 import {
-	ManifestAssetsMiddleware,
 	PublicAssetsMiddleware,
 	StaticAssetsMiddleware,
 } from './assets-middleware.ts'
@@ -36,8 +35,7 @@ const HttpLive = HttpRouter.empty.pipe(
 	),
 	HttpRouter.use(StaticAssetsMiddleware),
 
-	// HttpRouter.use(PublicAssetsMiddleware),
-	// HttpRouter.use(ManifestAssetsMiddleware),
+	HttpRouter.use(PublicAssetsMiddleware),
 
 	Effect.catchTags({
 		RouteNotFound: (_) =>
