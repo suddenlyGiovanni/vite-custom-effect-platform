@@ -3,7 +3,7 @@ import { NodeHttpServerRequest } from '@effect/platform-node'
 import { Effect } from 'effect'
 
 import { createHttpHandler } from './adapters/create-http-handler.ts'
-import { ConfigService } from './config-service.ts'
+import { ConfigService } from './services/config-service.ts'
 
 /**
  * A generator-based `handler` function utilizing effects to process HTTP server requests

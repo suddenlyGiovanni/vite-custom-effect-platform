@@ -7,10 +7,9 @@ import {
 import { NodeHttpServer, NodeRuntime } from '@effect/platform-node'
 import { Config, Console, Effect, Layer, flow } from 'effect'
 
-import { ConfigService } from './config-service.ts'
 import { Development } from './development.ts'
 import { Production } from './production.ts'
-import { ViteDevServerService } from './vite-service.ts'
+import { ConfigService, ViteDevServerService } from './services/index.ts'
 
 const ServerLive = NodeHttpServer.layerConfig(createServer, {
 	port: Config.number('PORT').pipe(Config.withDefault(3000)),
