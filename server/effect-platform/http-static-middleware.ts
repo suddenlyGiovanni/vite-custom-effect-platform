@@ -186,7 +186,18 @@ export const HttpStaticMiddleware = HttpMiddleware.make((app) =>
 				}
 			}
 
-			// TODO: Add folder resource support e.g. `/statically-rendered-route/index.html`
+			const maybeNestedFilePath = Option.fromNullable(
+				nestedFilePathMatcher.exec(url.slice(1)),
+			).pipe(
+				Option.map((regExpExecArray) => `build/client/${regExpExecArray[0]}`),
+			)
+
+			if (Option.isSome(maybeNestedFilePath)) {
+				const nestedFilePath = Option.getOrThrow(maybeNestedFilePath)
+				if (yield* fs.exists(nestedFilePath)) {
+					return yield* HttpServerResponse.file(nestedFilePath)
+				}
+			}
 
 			return yield* app
 		}
