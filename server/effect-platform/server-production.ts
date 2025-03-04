@@ -28,8 +28,10 @@ const HttpLive = HttpRouter.empty.pipe(
 					>,
 			)
 			return yield* module.handler
-		}).pipe(HttpStaticMiddleware),
+		}),
 	),
+
+	HttpRouter.use(HttpStaticMiddleware),
 
 	Effect.catchTags({
 		RouteNotFound: (_) =>
